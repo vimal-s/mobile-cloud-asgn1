@@ -36,6 +36,8 @@ repositories {
 }
 
 dependencies {
+// https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web
+//    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.1.0.RELEASE'
 
     compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.springframework.boot:spring-boot-starter-actuator")
