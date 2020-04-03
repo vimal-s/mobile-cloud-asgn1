@@ -19,90 +19,115 @@ package org.magnum.dataup;
 
 import org.magnum.dataup.model.Video;
 import org.magnum.dataup.model.VideoStatus;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.servlet.mvc.annotation.ResponseStatusExceptionResolver;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
-import retrofit.http.Headers;
-import retrofit.mime.TypedFile;
-import retrofit.mime.TypedInput;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
-public class RequestController implements VideoSvcApi {
+public class RequestController {
 
-    private List<Video> videos = new ArrayList<>();
+    //TODO what happens with annotation if implementing Interface with annotation
 
-//    private String getUrlBaseForLocalServer() {
-//        HttpServletRequest request =
-//                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
-//                        .getRequest();
-//        String base = "http://" + request.getServerName() +
-//                ((request.getServerPort() != 80) ? ":" + request.getServerPort() : "");
-//        return base;
-//    }
+    private static long currentId;
+    private Map<Long, Video> videos = new HashMap<>();
 
-    @Override
-    @RequestMapping(value = VIDEO_SVC_PATH, method = RequestMethod.GET)
+    private String getDataUrl(long videoId) {
+        return getUrlBaseForLocalServer() + "/video/" + videoId + "/data";
+    }
+
+    private String getDataPath(long videoId) {
+        return  "videos/video" + videoId + ".mpg";
+    }
+
+    private String getUrlBaseForLocalServer() {
+        HttpServletRequest request =
+                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        return "http://" + request.getServerName() +
+                ((request.getServerPort() != 80) ? ":" + request.getServerPort() : "");
+    }
+
+    public Video save(Video entity) {
+        checkAndSetId(entity);
+        videos.put(entity.getId(), entity);
+        return entity;
+    }
+
+    private void checkAndSetId(Video entity) {
+        /*if (entity.getId() == 0) {
+            entity.setId(++currentId);
+        }*/
+
+        entity.setId(++currentId);
+    }
+
+    @RequestMapping(value = "/video", method = RequestMethod.GET)
     @ResponseBody
-    public List<Video> getVideoList() {
+    public Collection<Video> getVideoList() {
         System.out.println("Inside getVideoList()");
-        return videos;
+        return videos.values();
     }
 
-    @RequestMapping(value = VIDEO_SVC_PATH, method = RequestMethod.POST)
-    public @ResponseBody Video addVideo(@RequestBody Video v) {
+    @RequestMapping(value = "/video", method = RequestMethod.POST)
+    @ResponseBody
+    public Video addVideo(@RequestBody Video v) {
         System.out.println("Inside addVideo()");
-        boolean isPresent = false;
-        int index = -1;
-        for (Video video : videos) {
-            index++;
-            if (video.getId() == v.getId()) {
-                isPresent = true;
-                break;
-            }
+
+        if (!videos.containsKey(v.getId())) {
+            save(v);
+            v.setDataUrl(getDataUrl(v.getId()));    // should be below save() because id is not yet generated
         }
-        if (!isPresent) {
-            index++;
-            long id = videos.size() + 1;
-            v.setId(id);
-            videos.add(v);
+
+        return videos.get(v.getId());
+    }
+
+    @RequestMapping(value = "/video/{id}/data", method = RequestMethod.POST)
+    @ResponseBody
+
+    //TODO if not multipart request how to throw client error or status
+    public ResponseEntity<VideoStatus> setVideoData(@PathVariable long id,
+                                                    @RequestParam(value = "data") MultipartFile videoData)
+            throws IOException {
+        System.out.println("Inside setVideoData()");
+        VideoStatus videoStatus = null;
+
+        if (videos.containsKey(id)) {
+            VideoFileManager videoFileManager = VideoFileManager.get();
+            videoFileManager.saveVideoData(videos.get(id), videoData.getInputStream());
+            videoStatus = new VideoStatus(VideoStatus.VideoState.READY);
+
+            return new ResponseEntity<>(videoStatus, HttpStatus.OK);
         }
-        return videos.get(index);
+
+        System.out.println("The given id is not present");
+
+        //TODO throw retrofit response error somehow 404
+        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 
-    @Override
-    public VideoStatus setVideoData(long id, TypedFile videoData) {
-        return null;
-    }
+    @RequestMapping(value = "/video/{id}/data", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Resource> getData(@PathVariable long id) {
+        System.out.println("Inside getData Controller");
+        if (videos.containsKey(id)) {
+//            File file = new File("src/test/resources/testing.mp4"); //TODO change this later
+            File file = new File(getDataPath(id));
+            Resource resource = new FileSystemResource(file);
+            return new ResponseEntity<>(resource, HttpStatus.OK);
+        }
 
-    @Override
-    public Response getData(long id) {
-        return null;
+        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
-
-//    public void start() {
-//        Retrofit retrofit = new Retrofit.Builder()
-//                .baseUrl(getUrlBaseForLocalServer())
-//                .build();
-//
-//        VideoSvcApi videoSvcApi = retrofit.create(VideoSvcApi.class);
-//
-//        Call<Collection<Video>> videos = videoSvcApi.getVideoList();
-//        call.enqueue(this);
-//    }
 }

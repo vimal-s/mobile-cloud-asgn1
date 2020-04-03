@@ -1,145 +1,148 @@
 /*
- * 
+ *
  * Copyright 2014 Jules White
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  */
 package org.magnum.dataup.model;
-
-import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fluentinterface.ReflectionBuilder;
 import com.fluentinterface.builder.Builder;
 
+import java.util.Objects;
+
 /**
-                    ___                    ___           ___                            
-     _____         /\  \                  /\  \         /\  \                           
-    /::\  \       /::\  \                 \:\  \       /::\  \         ___              
-   /:/\:\  \     /:/\:\  \                 \:\  \     /:/\:\  \       /\__\             
-  /:/  \:\__\   /:/  \:\  \            _____\:\  \   /:/  \:\  \     /:/  /             
- /:/__/ \:|__| /:/__/ \:\__\          /::::::::\__\ /:/__/ \:\__\   /:/__/              
- \:\  \ /:/  / \:\  \ /:/  /          \:\~~\~~\/__/ \:\  \ /:/  /  /::\  \              
-  \:\  /:/  /   \:\  /:/  /            \:\  \        \:\  /:/  /  /:/\:\  \             
-   \:\/:/  /     \:\/:/  /              \:\  \        \:\/:/  /   \/__\:\  \            
-    \::/  /       \::/  /                \:\__\        \::/  /         \:\__\           
-     \/__/         \/__/                  \/__/         \/__/           \/__/           
-      ___           ___                                     ___                         
-     /\  \         /\  \         _____                     /\__\                        
-    |::\  \       /::\  \       /::\  \       ___         /:/ _/_         ___           
-    |:|:\  \     /:/\:\  \     /:/\:\  \     /\__\       /:/ /\__\       /|  |          
-  __|:|\:\  \   /:/  \:\  \   /:/  \:\__\   /:/__/      /:/ /:/  /      |:|  |          
- /::::|_\:\__\ /:/__/ \:\__\ /:/__/ \:|__| /::\  \     /:/_/:/  /       |:|  |          
- \:\~~\  \/__/ \:\  \ /:/  / \:\  \ /:/  / \/\:\  \__  \:\/:/  /      __|:|__|          
-  \:\  \        \:\  /:/  /   \:\  /:/  /   ~~\:\/\__\  \::/__/      /::::\  \          
-   \:\  \        \:\/:/  /     \:\/:/  /       \::/  /   \:\  \      ~~~~\:\  \         
-    \:\__\        \::/  /       \::/  /        /:/  /     \:\__\          \:\__\        
-     \/__/         \/__/         \/__/         \/__/       \/__/           \/__/        
+ * ___                    ___           ___
+ * _____         /\  \                  /\  \         /\  \
+ * /::\  \       /::\  \                 \:\  \       /::\  \         ___
+ * /:/\:\  \     /:/\:\  \                 \:\  \     /:/\:\  \       /\__\
+ * /:/  \:\__\   /:/  \:\  \            _____\:\  \   /:/  \:\  \     /:/  /
+ * /:/__/ \:|__| /:/__/ \:\__\          /::::::::\__\ /:/__/ \:\__\   /:/__/
+ * \:\  \ /:/  / \:\  \ /:/  /          \:\~~\~~\/__/ \:\  \ /:/  /  /::\  \
+ * \:\  /:/  /   \:\  /:/  /            \:\  \        \:\  /:/  /  /:/\:\  \
+ * \:\/:/  /     \:\/:/  /              \:\  \        \:\/:/  /   \/__\:\  \
+ * \::/  /       \::/  /                \:\__\        \::/  /         \:\__\
+ * \/__/         \/__/                  \/__/         \/__/           \/__/
+ * ___           ___                                     ___
+ * /\  \         /\  \         _____                     /\__\
+ * |::\  \       /::\  \       /::\  \       ___         /:/ _/_         ___
+ * |:|:\  \     /:/\:\  \     /:/\:\  \     /\__\       /:/ /\__\       /|  |
+ * __|:|\:\  \   /:/  \:\  \   /:/  \:\__\   /:/__/      /:/ /:/  /      |:|  |
+ * /::::|_\:\__\ /:/__/ \:\__\ /:/__/ \:|__| /::\  \     /:/_/:/  /       |:|  |
+ * \:\~~\  \/__/ \:\  \ /:/  / \:\  \ /:/  / \/\:\  \__  \:\/:/  /      __|:|__|
+ * \:\  \        \:\  /:/  /   \:\  /:/  /   ~~\:\/\__\  \::/__/      /::::\  \
+ * \:\  \        \:\/:/  /     \:\/:/  /       \::/  /   \:\  \      ~~~~\:\  \
+ * \:\__\        \::/  /       \::/  /        /:/  /     \:\__\          \:\__\
+ * \/__/         \/__/         \/__/         \/__/       \/__/           \/__/
  */
 
 public class Video {
 
-	public static VideoBuilder create() {
-		return ReflectionBuilder.implementationFor(VideoBuilder.class).create();
-	}
+    public static VideoBuilder create() {
+        return ReflectionBuilder.implementationFor(VideoBuilder.class).create();
+    }
 
-	public interface VideoBuilder extends Builder<Video> {
-		public VideoBuilder withTitle(String title);
-		public VideoBuilder withDuration(long duration);
-		public VideoBuilder withSubject(String subject);
-		public VideoBuilder withContentType(String contentType);
-	}
+    public interface VideoBuilder extends Builder<Video> {
+        public VideoBuilder withTitle(String title);
 
-	private long id;
-	private String title;
-	private long duration;
-	private String location;
-	private String subject;
-	private String contentType;
+        public VideoBuilder withDuration(long duration);
 
-	@JsonIgnore
-	private String dataUrl;
+        public VideoBuilder withSubject(String subject);
 
-	public long getId() {
-		return id;
-	}
+        public VideoBuilder withContentType(String contentType);
+    }
 
-	public void setId(long id) {
-		this.id = id;
-	}
+    private long id;
+    private String title;
+    private long duration;
+    private String location;
+    private String subject;
+    private String contentType;
 
-	public String getTitle() {
-		return title;
-	}
+    @JsonIgnore
+    private String dataUrl;
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public long getDuration() {
-		return duration;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public void setDuration(long duration) {
-		this.duration = duration;
-	}
+    public String getTitle() {
+        return title;
+    }
 
-	public String getLocation() {
-		return location;
-	}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	public void setLocation(String location) {
-		this.location = location;
-	}
+    public long getDuration() {
+        return duration;
+    }
 
-	public String getSubject() {
-		return subject;
-	}
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
 
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
+    public String getLocation() {
+        return location;
+    }
 
-	@JsonProperty
-	public String getDataUrl() {
-		return dataUrl;
-	}
+    public void setLocation(String location) {
+        this.location = location;
+    }
 
-	@JsonIgnore
-	public void setDataUrl(String dataUrl) {
-		this.dataUrl = dataUrl;
-	}
+    public String getSubject() {
+        return subject;
+    }
 
-	public String getContentType() {
-		return contentType;
-	}
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
 
-	public void setContentType(String contentType) {
-		this.contentType = contentType;
-	}
+    @JsonProperty
+    public String getDataUrl() {
+        return dataUrl;
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(getTitle(), getDuration());
-	}
+    @JsonIgnore
+    public void setDataUrl(String dataUrl) {
+        this.dataUrl = dataUrl;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		return (obj instanceof Video)
-				&& Objects.equals(getTitle(), ((Video) obj).getTitle())
-				&& getDuration() == ((Video) obj).getDuration();
-	}
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getTitle(), getDuration());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return (obj instanceof Video)
+                && Objects.equals(getTitle(), ((Video) obj).getTitle())
+                && getDuration() == ((Video) obj).getDuration();
+    }
 
 }
