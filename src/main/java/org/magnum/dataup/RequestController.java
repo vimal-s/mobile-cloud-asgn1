@@ -39,8 +39,6 @@ import java.util.Map;
 @Controller
 public class RequestController {
 
-    //TODO what happens with annotation if implementing Interface with annotation
-
     private static long currentId;
     private Map<Long, Video> videos = new HashMap<>();
 
@@ -49,7 +47,7 @@ public class RequestController {
     }
 
     private String getDataPath(long videoId) {
-        return  "videos/video" + videoId + ".mpg";
+        return "videos/video" + videoId + ".mpg";
     }
 
     private String getUrlBaseForLocalServer() {
@@ -76,14 +74,12 @@ public class RequestController {
     @RequestMapping(value = "/video", method = RequestMethod.GET)
     @ResponseBody
     public Collection<Video> getVideoList() {
-        System.out.println("Inside getVideoList()");
         return videos.values();
     }
 
     @RequestMapping(value = "/video", method = RequestMethod.POST)
     @ResponseBody
     public Video addVideo(@RequestBody Video v) {
-        System.out.println("Inside addVideo()");
 
         if (!videos.containsKey(v.getId())) {
             save(v);
@@ -95,12 +91,9 @@ public class RequestController {
 
     @RequestMapping(value = "/video/{id}/data", method = RequestMethod.POST)
     @ResponseBody
-
-    //TODO if not multipart request how to throw client error or status
     public ResponseEntity<VideoStatus> setVideoData(@PathVariable long id,
                                                     @RequestParam(value = "data") MultipartFile videoData)
             throws IOException {
-        System.out.println("Inside setVideoData()");
         VideoStatus videoStatus = null;
 
         if (videos.containsKey(id)) {
@@ -111,18 +104,14 @@ public class RequestController {
             return new ResponseEntity<>(videoStatus, HttpStatus.OK);
         }
 
-        System.out.println("The given id is not present");
-
-        //TODO throw retrofit response error somehow 404
         return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping(value = "/video/{id}/data", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Resource> getData(@PathVariable long id) {
-        System.out.println("Inside getData Controller");
+
         if (videos.containsKey(id)) {
-//            File file = new File("src/test/resources/testing.mp4"); //TODO change this later
             File file = new File(getDataPath(id));
             Resource resource = new FileSystemResource(file);
             return new ResponseEntity<>(resource, HttpStatus.OK);
